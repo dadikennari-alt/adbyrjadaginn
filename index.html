@@ -6,60 +6,60 @@
 <title>Talæfing FB - Morgunverk (Tölvuútgáfa)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  body { font-family: 'Segoe UI', sans-serif; background-color: #eef2f5; text-align: center; padding: 20px; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+  body { font-family: 'Segoe UI', sans-serif; background-color: #eef2f5; text-align: center; padding: 10px; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; /* Kemur í veg fyrir aukascroll ef hægt er */ }
   
-  /* Aðal kassinn - Breytt fyrir Landscape / Tölvuskjá */
-  .card { background: white; width: 100%; max-width: 900px; padding: 30px 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border-top: 10px solid #004a99; box-sizing: border-box; }
+  /* Aðal kassinn - Aðeins nettari til að passa á skjáinn */
+  .card { background: white; width: 100%; max-width: 850px; padding: 20px 30px; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); border-top: 8px solid #004a99; box-sizing: border-box; }
   
   /* Framvindustika efst */
-  .overall-progress { margin-bottom: 20px; font-size: 1.1em; color: #555; text-align: left; }
-  .progress-container { width: 100%; background: #e0e0e0; height: 12px; border-radius: 6px; margin-top: 8px; }
-  .progress-fill { height: 100%; width: 0%; background: #004a99; border-radius: 6px; transition: width 0.5s ease; }
+  .overall-progress { margin-bottom: 10px; font-size: 1em; color: #555; text-align: left; }
+  .progress-container { width: 100%; background: #e0e0e0; height: 10px; border-radius: 5px; margin-top: 5px; }
+  .progress-fill { height: 100%; width: 0%; background: #004a99; border-radius: 5px; transition: width 0.5s ease; }
   
-  h2 { color: #2c3e50; margin: 0 0 5px 0; font-size: 2em; }
-  .counter { color: #888; font-size: 1.2em; margin-bottom: 20px; display: block; font-weight: bold;}
+  h2 { color: #2c3e50; margin: 0 0 5px 0; font-size: 1.6em; }
+  .counter { color: #888; font-size: 1.1em; margin-bottom: 10px; display: block; font-weight: bold;}
   
-  /* Svæðið fyrir miðilinn (mynd eða myndband) - Stækkað */
-  .media-container { width: 100%; height: 450px; background-color: #000; border-radius: 12px; margin-bottom: 25px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+  /* Svæðið fyrir miðilinn - Lækkað til að taka minna pláss */
+  .media-container { width: 100%; height: 280px; background-color: #000; border-radius: 10px; margin-bottom: 15px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 3px 8px rgba(0,0,0,0.2); }
   .exercise-img { width: 100%; height: 100%; object-fit: cover; }
   .video-frame { width: 100%; height: 100%; border: none; }
 
-  /* Boxið utan um textann sem á að lesa - Stækkað */
-  .phrase-box { background-color: #f8fbff; border: 3px solid #dce6f1; border-radius: 15px; padding: 25px; margin-bottom: 25px; }
-  .target-text { font-size: 2.2em; color: #004a99; font-weight: bold; letter-spacing: 1px;}
+  /* Boxið utan um textann sem á að lesa */
+  .phrase-box { background-color: #f8fbff; border: 2px solid #dce6f1; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+  .target-text { font-size: 1.8em; color: #004a99; font-weight: bold; letter-spacing: 0.5px;}
   
-  /* Neðri hlutinn - Skipulagður í dálka fyrir Landscape */
-  .controls-wrapper { display: flex; gap: 30px; align-items: stretch; justify-content: space-between; }
+  /* Neðri hlutinn - Hlið við hlið uppsetning */
+  .controls-wrapper { display: flex; gap: 20px; align-items: stretch; justify-content: space-between; }
   
   /* Upptökuhluti (Vinstri) */
-  .action-area { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 15px; }
+  .action-area { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
   
-  /* Upptökuhnappurinn - Stækkaður */
-  .record-btn { background-color: #27ae60; color: white; border: none; padding: 20px; font-size: 1.4em; font-weight: bold; border-radius: 50px; cursor: pointer; transition: 0.2s; width: 100%; box-shadow: 0 6px 12px rgba(39, 174, 96, 0.3); }
+  /* Upptökuhnappurinn */
+  .record-btn { background-color: #27ae60; color: white; border: none; padding: 15px; font-size: 1.2em; font-weight: bold; border-radius: 50px; cursor: pointer; transition: 0.2s; width: 100%; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3); }
   .record-btn:hover { background-color: #219150; transform: translateY(-2px); }
-  .record-btn.recording { background-color: #e74c3c; animation: pulse 1.5s infinite; box-shadow: 0 6px 12px rgba(231, 76, 60, 0.3); }
-  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
+  .record-btn.recording { background-color: #e74c3c; animation: pulse 1.5s infinite; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3); }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
   
   /* Stjórntakkar og lógó */
-  .nav-row { display: flex; justify-content: space-between; align-items: center; background: #f4f6f8; padding: 10px 15px; border-radius: 12px; }
-  .nav-btn { background-color: #fff; border: 2px solid #ddd; padding: 12px 25px; border-radius: 8px; cursor: pointer; color: #555; font-weight: bold; font-size: 1.1em; transition: 0.2s; }
-  .nav-btn:hover { background-color: #eef2f5; border-color: #bbb; }
-  .small-logo { height: 45px; width: auto; border-radius: 5px; }
+  .nav-row { display: flex; justify-content: space-between; align-items: center; background: #f4f6f8; padding: 8px 12px; border-radius: 10px; }
+  .nav-btn { background-color: #fff; border: 1px solid #ccc; padding: 10px 20px; border-radius: 6px; cursor: pointer; color: #555; font-weight: bold; font-size: 1em; transition: 0.2s; }
+  .nav-btn:hover { background-color: #eef2f5; border-color: #aaa; }
+  .small-logo { height: 35px; width: auto; border-radius: 4px; }
 
-  /* Niðurstöðusvæðið (Hægri) - Stækkað */
-  .result-area { flex: 1; background: #fdfdfe; padding: 20px; border-radius: 15px; border: 2px solid #eee; display: flex; flex-direction: column; justify-content: center; text-align: left; }
-  #accuracy { font-size: 1.3em; margin-bottom: 5px;}
-  .score-bar-bg { width: 100%; background: #e0e0e0; height: 15px; border-radius: 8px; overflow: hidden; margin: 10px 0 15px 0; }
+  /* Niðurstöðusvæðið (Hægri) */
+  .result-area { flex: 1; background: #fdfdfe; padding: 15px; border-radius: 10px; border: 1px solid #ddd; display: flex; flex-direction: column; justify-content: center; text-align: left; }
+  #accuracy { font-size: 1.1em; margin-bottom: 5px;}
+  .score-bar-bg { width: 100%; background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; margin: 5px 0 10px 0; }
   .score-bar-fill { height: 100%; width: 0%; background: #27ae60; transition: width 0.6s ease; }
-  .user-said { font-size: 1.4em; color: #444; font-style: italic; min-height: 40px; border-left: 4px solid #ddd; padding-left: 15px; }
+  .user-said { font-size: 1.2em; color: #444; font-style: italic; min-height: 30px; border-left: 4px solid #ddd; padding-left: 10px; }
   
-  /* Skírteini (Modal gluggi) - Stækkað fyrir PC */
+  /* Skírteini (Modal gluggi) */
   #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; }
-  #cert-wrap { background: white; padding: 50px; border: 15px double #004a99; width: 90%; max-width: 700px; text-align: center; box-sizing: border-box; border-radius: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);}
-  .cert-logo { width: 120px; margin-bottom: 15px; }
-  .student-name-input { font-size: 2em; border: none; border-bottom: 3px solid #004a99; text-align: center; width: 80%; margin: 25px 0; outline: none; background: #f4f4f4; padding: 10px;}
-  .action-btns { margin-top: 30px; display: flex; gap: 15px; justify-content: center; }
-  .save-btn, .close-btn { border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.2em; transition: 0.2s; }
+  #cert-wrap { background: white; padding: 40px; border: 10px double #004a99; width: 90%; max-width: 600px; text-align: center; box-sizing: border-box; border-radius: 10px; box-shadow: 0 15px 40px rgba(0,0,0,0.5);}
+  .cert-logo { width: 100px; margin-bottom: 10px; }
+  .student-name-input { font-size: 1.8em; border: none; border-bottom: 2px solid #004a99; text-align: center; width: 80%; margin: 20px 0; outline: none; background: #f4f4f4; padding: 8px;}
+  .action-btns { margin-top: 25px; display: flex; gap: 10px; justify-content: center; }
+  .save-btn, .close-btn { border: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1.1em; transition: 0.2s; }
   .save-btn { background: #004a99; color: white; }
   .save-btn:hover { background: #003366; }
   .close-btn { background: #95a5a6; color: white; }
@@ -86,7 +86,7 @@
 
     <div class="controls-wrapper">
         <div class="action-area">
-            <button class="record-btn" id="record-btn">🎙️ Ýttu hér til að lesa textann</button>
+            <button class="record-btn" id="record-btn">🎙️ Ýttu hér og lestu</button>
             <div class="nav-row">
                 <button class="nav-btn" onclick="move(-1)">⬅ Fyrri</button>
                 <img src="https://geymd.arnastofnun.is/ismus/data/e534627e-82ae-497a-8a52-22e8170a9f5a/filename.jpg" alt="FB Logo" class="small-logo">
@@ -106,13 +106,13 @@
 <div id="modal-overlay">
     <div id="cert-wrap">
         <img src="https://geymd.arnastofnun.is/ismus/data/e534627e-82ae-497a-8a52-22e8170a9f5a/filename.jpg" alt="Logo" class="cert-logo">
-        <h1 style="font-family: serif; font-size: 3.5em; margin: 10px 0; color: #004a99;">SKÍRTEINI</h1>
-        <p style="font-size: 1.2em;">Þetta staðfestir að:</p>
+        <h1 style="font-family: serif; font-size: 3em; margin: 10px 0; color: #004a99;">SKÍRTEINI</h1>
+        <p style="font-size: 1.1em;">Þetta staðfestir að:</p>
         <input type="text" id="student-name" class="student-name-input" placeholder="Skrifaðu nafnið þitt hér">
-        <p style="font-size: 1.2em;">hefur lokið talæfingunni:</p>
-        <h3 style="color: #333; margin: 15px 0; font-size: 2em;">Morgunverk</h3>
-        <p id="cert-date" style="font-size: 1.1em; color: #777;"></p>
-        <div style="font-size: 3em; margin-top: 15px;">🏆</div>
+        <p style="font-size: 1.1em;">hefur lokið talæfingunni:</p>
+        <h3 style="color: #333; margin: 10px 0; font-size: 1.8em;">Morgunverk</h3>
+        <p id="cert-date" style="font-size: 1em; color: #777;"></p>
+        <div style="font-size: 2.5em; margin-top: 10px;">🏆</div>
     </div>
     <div class="action-btns">
         <button class="save-btn" onclick="downloadCert()">💾 Vista sem mynd</button>
@@ -124,8 +124,8 @@
 const exerciseData = [
     // --- 5 MYNDBÖND (YouTube) ---
     { text: "Ég vakna.", url: "https://www.youtube.com/embed/eZ1Q6a5q8pU?autoplay=1&mute=1&controls=0" },
-    { text: "Ég teygji úr mér.", url: "https://www.youtube.com/embed/Fj5t0h6_06Q?autoplay=1&mute=1&controls=0" },
-    { text: "Ég fer framúr.", url: "https://www.youtube.com/embed/E91gz18XjYk?autoplay=1&mute=1&controls=0" }, 
+    { text: "Ég fer á fætur.", url: "https://www.youtube.com/embed/Fj5t0h6_06Q?autoplay=1&mute=1&controls=0" },
+    { text: "Ég fer í sturtu.", url: "https://www.youtube.com/embed/E91gz18XjYk?autoplay=1&mute=1&controls=0" }, 
     { text: "Ég bursta tennurnar.", url: "https://www.youtube.com/embed/0O9F80g0A0A?autoplay=1&mute=1&controls=0" }, 
     { text: "Ég þvæ mér um hendurnar.", url: "https://www.youtube.com/embed/Z_q6bSjYk0E?autoplay=1&mute=1&controls=0" }, 
 
@@ -216,7 +216,7 @@ recBtn.onclick = () => {
 if (recognition) {
     recognition.onresult = (e) => {
         recBtn.classList.remove('recording'); 
-        recBtn.innerText = "🎙️ Ýttu hér til að lesa textann";
+        recBtn.innerText = "🎙️ Ýttu hér og lestu";
         
         const rawSpeech = e.results[0][0].transcript;
         const formattedSpeech = formatUserSpeech(rawSpeech);
@@ -236,12 +236,12 @@ if (recognition) {
 
     recognition.onend = () => {
         recBtn.classList.remove('recording');
-        recBtn.innerText = "🎙️ Ýttu hér til að lesa textann";
+        recBtn.innerText = "🎙️ Ýttu hér og lestu";
     };
     
     recognition.onerror = (event) => {
         recBtn.classList.remove('recording');
-        recBtn.innerText = "🎙️ Ýttu hér til að lesa textann";
+        recBtn.innerText = "🎙️ Ýttu hér og lestu";
         console.error("Talgreiningarvilla:", event.error);
     };
 }
@@ -264,8 +264,8 @@ async function downloadCert() {
     const nameText = document.createElement('h2');
     nameText.innerText = name;
     nameText.style.color = "#004a99";
-    nameText.style.fontSize = "2.5em";
-    nameText.style.margin = "20px 0";
+    nameText.style.fontSize = "2.2em";
+    nameText.style.margin = "15px 0";
     nameInput.style.display = "none";
     nameInput.parentNode.insertBefore(nameText, nameInput);
     
