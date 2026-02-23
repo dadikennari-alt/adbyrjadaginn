@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talæfing FB - Autoplay Myndbönd</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; text-align: center; padding: 10px; margin: 0; }
+  .card { background: white; max-width: 500px; margin: 10px auto; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 8px solid #004a99; }
+  .overall-progress { margin-bottom: 20px; font-size: 0.9em; color: #555; }
+  .progress-container { width: 100%; background: #e0e0e0; height: 10px; border-radius: 5px; margin-top: 5px; }
+  .progress-fill { height: 100%; width: 0%; background: #004a99; border-radius: 5px; transition: width 0.5s ease; }
+  h2 { color: #2c3e50; margin-top: 0; }
+  .counter { color: #888; font-size: 0.9em; margin-bottom: 10px; display: block; font-weight: bold;}
+  
+  .media-container { width: 100%; height: 280px; background-color: #000; border-radius: 10px; margin-bottom: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; }
+  .exercise-img { width: 100%; height: 100%; object-fit: cover; }
+  .video-frame { width: 100%; height: 100%; border: none; }
+
+  .phrase-box { background-color: #fdfdfe; border: 2px solid #e1e4e8; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+  .target-text { font-size: 1.2em; color: #2c3e50; font-weight: bold; }
+  .record-btn { background-color: #27ae60; color: white; border: none; padding: 15px 30px; font-size: 1.1em; border-radius: 50px; cursor: pointer; transition: 0.2s; width: 100%; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+  .record-btn.recording { background-color: #ff5252; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(255, 82, 82, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); } }
+  .nav-row { display: flex; justify-content: space-between; margin-top: 10px; align-items: center; }
+  .nav-btn { background-color: #eceff1; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; color: #555; font-weight: bold; }
+  .result-area { min-height: 100px; margin-top: 10px; }
+  .score-bar-bg { width: 100%; background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; margin: 10px 0; }
+  .score-bar-fill { height: 100%; width: 0%; background: #27ae60; transition: width 0.6s ease; }
+  .user-said { font-size: 1.1em; color: #2c3e50; margin-top: 5px; font-style: italic; font-weight: bold; }
+  .small-logo { width: 50px; height: auto; border-radius: 5px; }
+
+  #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; }
+  #cert-wrap { background: white; padding: 40px; border: 12px double #004a99; width: 550px; text-align: center; box-sizing: border-box; position: relative; }
+  .cert-logo { width: 100px; margin-bottom: 10px; border-radius: 5px; }
+  .student-name-input { font-size: 1.8em; border: none; border-bottom: 2px solid #004a99; text-align: center;
