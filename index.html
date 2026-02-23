@@ -34,4 +34,178 @@
   #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; }
   #cert-wrap { background: white; padding: 40px; border: 12px double #004a99; width: 550px; text-align: center; box-sizing: border-box; position: relative; }
   .cert-logo { width: 100px; margin-bottom: 10px; border-radius: 5px; }
-  .student-name-input { font-size: 1.8em; border: none; border-bottom: 2px solid #004a99; text-align: center;
+  .student-name-input { font-size: 1.8em; border: none; border-bottom: 2px solid #004a99; text-align: center; width: 90%; margin: 20px 0; outline: none; }
+  .action-btns { margin-top: 20px; }
+  .save-btn { background: #004a99; color: white; border: none; padding: 15px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+  .close-btn { background: #95a5a6; color: white; border: none; padding: 15px 30px; border-radius: 5px; cursor: pointer; margin-left: 10px; }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="overall-progress">
+        Árangur: <span id="completed-count">0</span> / 10
+        <div class="progress-container"><div id="overall-fill" class="progress-fill"></div></div>
+    </div>
+
+    <h2>Daglegt líf nemanda</h2>
+    <span class="counter" id="counter">1 / 10</span>
+
+    <div class="media-container" id="media-content">
+        <img id="current-image" class="exercise-img" src="" alt="Sæki...">
+    </div>
+
+    <div class="phrase-box"><span class="target-text" id="target">Sæki texta...</span></div>
+
+    <button class="record-btn" id="record-btn">🎙️ Ýttu og lestu</button>
+
+    <div class="result-area">
+        <div class="score-bar-bg"><div id="score-fill" class="score-bar-fill"></div></div>
+        <div id="accuracy" style="font-weight:bold; color:#004a99;">Nákvæmni: 0%</div>
+        <div class="user-said" id="user-input"></div>
+    </div>
+
+    <div class="nav-row">
+        <button class="nav-btn" onclick="move(-1)">⬅ Fyrri</button>
+        <img src="https://geymd.arnastofnun.is/ismus/data/e534627e-82ae-497a-8a52-22e8170a9f5a/filename.jpg" alt="FB Logo" class="small-logo">
+        <button class="nav-btn" onclick="move(1)">Næsta ➡</button>
+    </div>
+</div>
+
+<div id="modal-overlay">
+    <div id="cert-wrap">
+        <img src="https://geymd.arnastofnun.is/ismus/data/e534627e-82ae-497a-8a52-22e8170a9f5a/filename.jpg" alt="Logo" class="cert-logo">
+        <h1 style="font-family: serif; font-size: 2.8em; margin: 0; color: #004a99;">SKÍRTEINI</h1>
+        <p style="margin: 10px 0;">Þetta staðfestir að nemandinn:</p>
+        <input type="text" id="student-name" class="student-name-input" placeholder="Skrifaðu nafnið þitt">
+        <p>hefur lokið talæfingunni í íslensku</p>
+        <h3 style="color: #333;">Daglegt líf nemanda</h3>
+        <p id="cert-date" style="font-size: 0.9em; color: #777;"></p>
+        <div style="font-size: 1.5em; margin-top: 10px;">🏆</div>
+    </div>
+    <div class="action-btns">
+        <button class="save-btn" onclick="downloadCert()">💾 Vista skírteini</button>
+        <button class="close-btn" onclick="closeModal()">Loka</button>
+    </div>
+</div>
+
+<script>
+const exerciseData = [
+    { text: "Ég vakna snemma.", url: "https://images.unsplash.com/photo-1511216113906-8f57bb83e776?w=600" },
+    { text: "Ég fer á fætur.", url: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600" },
+    { text: "Ég fer á salernið.", url: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=600" },
+    { text: "Ég bursta tennurnar.", url: "https://images.unsplash.com/photo-1559599101-f0972c103c08?w=600" },
+    { text: "Ég þvæ mér um hendurnar.", url: "https://images.unsplash.com/photo-1604147706244-98725a512a74?w=600" },
+    { text: "Ég fer í sturtu.", url: "https://images.unsplash.com/photo-1560233026-ad254fa83803?w=600" },
+    { text: "Ég klæði mig.", url: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600" },
+    { text: "Ég greiði mér.", url: "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=600" },
+    { text: "Ég borða morgunmat.", url: "https://images.unsplash.com/photo-1493770348161-369560ae357d?w=600" },
+    { text: "Ég fer í skólann.", url: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600" }
+];
+
+let currentIndex = 0;
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+recognition.lang = 'is-IS';
+
+window.onload = () => { localStorage.clear(); updateUI(); };
+
+function updateUI() {
+    const curr = exerciseData[currentIndex];
+    const mediaBox = document.getElementById('media-content');
+    document.getElementById('target').innerText = curr.text;
+    document.getElementById('counter').innerText = `${currentIndex + 1} / ${exerciseData.length}`;
+    document.getElementById('user-input').innerText = "";
+    document.getElementById('accuracy').innerText = "Nákvæmni: 0%";
+    document.getElementById('score-fill').style.width = "0%";
+
+    if (curr.url.includes('youtube.com')) {
+        mediaBox.innerHTML = `<iframe class="video-frame" src="${curr.url}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    } else {
+        mediaBox.innerHTML = `<img id="current-image" class="exercise-img" src="${curr.url}" alt="Mynd">`;
+    }
+}
+
+function calculateProgress() {
+    let done = 0;
+    for(let i=0; i<exerciseData.length; i++) {
+        if((localStorage.getItem('score_'+i) || 0) >= 80) done++;
+    }
+    document.getElementById('completed-count').innerText = done;
+    document.getElementById('overall-fill').style.width = (done/exerciseData.length)*100 + "%";
+    if(done === exerciseData.length) {
+        document.getElementById('cert-date').innerText = new Date().toLocaleDateString('is-IS');
+        document.getElementById('modal-overlay').style.display = 'flex';
+    }
+}
+
+function move(dir) {
+    currentIndex += dir;
+    if(currentIndex < 0) currentIndex = 0;
+    if(currentIndex >= exerciseData.length) currentIndex = exerciseData.length - 1;
+    updateUI();
+}
+
+function formatUserSpeech(text) {
+    if (!text) return "";
+    let formatted = text.trim();
+    formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    if (!formatted.endsWith('.')) formatted += ".";
+    return formatted;
+}
+
+const recBtn = document.getElementById('record-btn');
+recBtn.onclick = () => { 
+    try {
+        recognition.start(); 
+        recBtn.classList.add('recording'); 
+        recBtn.innerText = "Hlusta..."; 
+    } catch(e) { console.log("Hljóðnemi þegar í gangi"); }
+};
+
+recognition.onresult = (e) => {
+    recBtn.classList.remove('recording'); 
+    recBtn.innerText = "🎙️ Ýttu og lestu";
+    const rawSpeech = e.results[0][0].transcript;
+    const formattedSpeech = formatUserSpeech(rawSpeech);
+    const target = exerciseData[currentIndex].text;
+    const score = compare(rawSpeech, target);
+    
+    document.getElementById('user-input').innerText = `„${formattedSpeech}“`;
+    document.getElementById('accuracy').innerText = `Nákvæmni: ${score}%`;
+    document.getElementById('score-fill').style.width = score + "%";
+    if(score >= 80) { localStorage.setItem('score_'+currentIndex, score); calculateProgress(); }
+};
+
+recognition.onend = () => {
+    recBtn.classList.remove('recording');
+    recBtn.innerText = "🎙️ Ýttu og lestu";
+};
+
+function compare(s1, s2) {
+    const clean = s => s.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g,"").trim();
+    const w1 = clean(s1).split(/\s+/); const w2 = clean(s2).split(/\s+/);
+    let m = 0; w1.forEach(w => { if(w2.includes(w)) m++; });
+    return Math.round((m / Math.max(w1.length, w2.length)) * 100);
+}
+
+async function downloadCert() {
+    const name = document.getElementById('student-name').value;
+    if(!name) return alert("Vinsamlegast skrifaðu nafn!");
+    const wrap = document.getElementById('cert-wrap');
+    const input = document.getElementById('student-name');
+    const nameText = document.createElement('h2');
+    nameText.innerText = name;
+    input.style.display = "none";
+    input.parentNode.insertBefore(nameText, input);
+    
+    const canvas = await html2canvas(wrap, {useCORS: true});
+    const link = document.createElement('a');
+    link.download = `Skirteini-${name}.png`; link.href = canvas.toDataURL(); link.click();
+    
+    input.style.display = "inline-block"; nameText.remove();
+}
+
+function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+</script>
+</body>
+</html>
