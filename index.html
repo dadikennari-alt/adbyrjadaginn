@@ -114,12 +114,12 @@
 <script>
 // Gögnin þín - Mjög stuttar setningar á A1 þrepi
 const exerciseData = [
-    // 5 YouTube myndbönd (Einfaldir hlekkir beint úr vafra virka núna!)
-    { text: "Ég vakna.", url: "https://youtu.be/cF8ljzbOBVc" },
-    { text: "Ég fer á fætur.", url: "https://youtu.be/YSxBkmgtDzI" },
-    { text: "Ég fer í sturtu.", url: "https://youtu.be/-uaABQd_FAk" }, 
-    { text: "Ég bursta tennur.", url: "https://youtu.be/318GCtqYrRE" }, 
-    { text: "Ég greiði hár.", url: "https://youtu.be/2w80XQN7juk" }, 
+    // 5 YouTube myndbönd
+    { text: "Ég vakna.", url: "https://youtu.be/eZ1Q6a5q8pU" },
+    { text: "Ég stend upp.", url: "https://www.youtube.com/watch?v=Fj5t0h6_06Q" },
+    { text: "Ég fer á fætur.", url: "https://youtu.be/E91gz18XjYk" }, 
+    { text: "Ég bursta tennur.", url: "https://www.youtube.com/watch?v=0O9F80g0A0A" }, 
+    { text: "Ég þvæ mér.", url: "https://youtu.be/Z_q6bSjYk0E" }, 
 
     // 5 Ljósmyndir
     { text: "Ég klæði mig.", url: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&auto=format&fit=crop&q=80" },
@@ -141,14 +141,12 @@ if (recognition) {
     alert("Þessi vafri styður ekki talgreiningu. Notaðu Chrome eða Edge á tölvu.");
 }
 
-// ÞETTA ER BREYTINGIN: Hreinsar minnið alltaf þegar síðan er uppfærð/refreshað!
 window.onload = () => { 
     localStorage.clear(); 
     updateUI(); 
     calculateProgress();
 };
 
-// NÝTT FALL: Útbýr YouTube hlekk með LOOP!
 function getYouTubeEmbedUrl(url) {
     let videoId = "";
     if (url.includes("youtu.be/")) {
@@ -159,7 +157,6 @@ function getYouTubeEmbedUrl(url) {
         videoId = url.split("/embed/")[1].split("?")[0];
     }
     
-    // Bætir við autoplay, mute, loop, playlist (skilyrði fyrir loop á youtube) og tekur út takka (controls=0)
     if (videoId) {
         return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
     }
@@ -173,7 +170,6 @@ function updateUI() {
     document.getElementById('target').innerText = curr.text;
     document.getElementById('counter').innerText = `${currentIndex + 1} / ${exerciseData.length}`;
     
-    // Kíkjum hvort þetta er Youtube slóð eða mynd
     if (curr.url.includes('youtube.com') || curr.url.includes('youtu.be')) {
         const embedUrl = getYouTubeEmbedUrl(curr.url);
         mediaBox.innerHTML = `<iframe class="video-frame" src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
@@ -181,7 +177,6 @@ function updateUI() {
         mediaBox.innerHTML = `<img id="current-image" class="exercise-img" src="${curr.url}" alt="Mynd">`;
     }
     
-    // Hleður inn vistuðum niðurstöðum ef þær eru til
     const savedScore = localStorage.getItem('score_' + currentIndex);
     const savedText = localStorage.getItem('text_' + currentIndex);
 
@@ -274,13 +269,26 @@ if (recognition) {
     };
 }
 
+// ÞETTA ER BREYTTI HLUTINN: Reiknar aðeins út ákveðin gildi
 function compare(s1, s2) {
     const clean = s => s.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g,"").trim();
     const w1 = clean(s1).split(/\s+/); 
     const w2 = clean(s2).split(/\s+/);
     let m = 0; 
     w1.forEach(w => { if(w2.includes(w)) m++; });
-    return Math.round((m / Math.max(w1.length, w2.length)) * 100) || 0;
+    
+    // Venjuleg útreikningur fyrst (t.d. 66%)
+    let rawScore = Math.round((m / Math.max(w1.length, w2.length)) * 100) || 0;
+    
+    // Fastsettu skrefin sem þú baðst um
+    const allowedValues = [0, 10, 30, 50, 70, 90, 100];
+    
+    // Finnur það gildi sem er næst útkomunni (66% verður 70%)
+    let finalScore = allowedValues.reduce((prev, curr) => {
+        return (Math.abs(curr - rawScore) < Math.abs(prev - rawScore) ? curr : prev);
+    });
+    
+    return finalScore;
 }
 
 async function downloadCert() {
